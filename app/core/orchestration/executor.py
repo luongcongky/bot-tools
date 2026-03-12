@@ -10,20 +10,47 @@ async def execute_plan(plan, user_input, chat_id="default"):
     execution_results = []
     logger.info(f"📋 BẮT ĐẦU KẾ HOẠCH ({len(plan)} bước):")
     for i, task in enumerate(plan):
-        logger.info(f"   {i+1}. {task.get('intent')} - {task.get('params')}")
+        if isinstance(task, dict):
+            logger.info(f"   {i+1}. {task.get('intent')} - {task.get('params')}")
+        else:
+            logger.info(f"   {i+1}. Invalid task format: {task}")
     
     for i, task in enumerate(plan):
+        if not isinstance(task, dict):
+            execution_results.append({"step": i + 1, "error": "Invalid task format"})
+            continue
+            
         intent = task.get("intent")
         params = task.get("params", {})
         
         logger.info(f"🚀 [BƯỚC {i+1}] Thực thi: {intent}...")
         result = await execute_tool(intent, params, user_input=user_input, chat_id=chat_id)
-        logger.info(f"✅ [RAW OUTPUT]: {result}")
+        display_result = str(result)
+        if len(display_result) > 500:
+            display_result = display_result[:500] + "..."
+        logger.info(f"✅ [RAW OUTPUT]: {display_result}")
         
+        # Trích xuất message/result an toàn
+        output_text = "Xong"
+        if isinstance(result, dict):
+            output_text = result.get("result", result.get("message", str(result)))
+        else:
+            output_text = str(result)
+
+        # Nếu output quá dài và có phần LINK ĐIỀU HƯỚNG, hãy ưu tiên phần đó cho Summarizer
+        summarizer_output = output_text
+        if len(summarizer_output) > 2000:
+            nav_marker = "### 🔗 LINK ĐIỀU HƯỚNG"
+            if nav_marker in summarizer_output:
+                nav_part = summarizer_output[summarizer_output.find(nav_marker):]
+                summarizer_output = summarizer_output[:1000] + "\n... (nội dung dài đã cắt) ...\n" + nav_part
+            else:
+                summarizer_output = summarizer_output[:2000] + "\n... (nội dung dài đã cắt) ..."
+
         execution_results.append({
             "step": i + 1,
             "intent": intent,
-            "output": result.get("result", result.get("message", "Xong"))
+            "output": summarizer_output
         })
 
     summary_prompt = [

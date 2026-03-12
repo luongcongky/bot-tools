@@ -1,6 +1,7 @@
 from tools.base_browser import BaseBrowser
 import asyncio
 import os
+import datetime
 
 async def run(username="kyluong", password="19901991", **kwargs):
     # print("Starting Punch In/Out task...")
@@ -48,10 +49,14 @@ async def run(username="kyluong", password="19901991", **kwargs):
                 await page.click('//button[contains(text(), "Punch In/Out")]')
                 # print("Successfully clicked Punch In/Out (alternative).")
             except:
-                print("Failed to click with alternative selector as well.")
+                return f"❌ Thất bại: Không tìm thấy nút Punch In/Out."
 
+        now = datetime.datetime.now().strftime("%H:%M:%S %d/%m/%Y")
+        return f"✅ Đã thực hiện Punch In/Out thành công vào lúc {now}."
+
+    except Exception as e:
+        return f"❌ Lỗi: {str(e)}"
     finally:
         # Keep browser open for a few seconds to confirm action visually if headless=False
         await asyncio.sleep(5)
         await browser.stop()
-        print("Punch In/Out task successfully.")

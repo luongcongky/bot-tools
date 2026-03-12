@@ -3,14 +3,16 @@ import logging
 
 logger = logging.getLogger("LLMClient")
 
-async def get_llm_response(model, messages, format=None):
+async def get_llm_response(model, messages, format=None, options=None):
     try:
         client = AsyncClient()
+        kwargs = {"model": model, "messages": messages}
         if format:
-            response = await client.chat(model=model, format=format, messages=messages)
-        else:
-            response = await client.chat(model=model, messages=messages)
-        
+            kwargs["format"] = format
+        if options:
+            kwargs["options"] = options
+            
+        response = await client.chat(**kwargs)
         return response['message']['content']
     except Exception as e:
         logger.error(f"Error calling Ollama (Async): {e}")

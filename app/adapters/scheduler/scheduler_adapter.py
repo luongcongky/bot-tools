@@ -236,10 +236,10 @@ async def stop_scheduler():
     """Dừng scheduler một cách êm ái."""
     global _SCHEDULER_TASK
     if _SCHEDULER_TASK:
-        logger.info("🛑 Đang dừng Scheduler...")
+        # logger.info("🛑 Đang dừng Scheduler...")
         _SCHEDULER_TASK.cancel()
         try:
             await _SCHEDULER_TASK
         except asyncio.CancelledError:
-            logger.info("✅ Scheduler đã dừng thành công.")
+            logger.info("🛑 Scheduler đã dừng thành công.")
         _SCHEDULER_TASK = None

@@ -34,7 +34,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 response_text = str(response_text)
         
         await update.message.reply_text(response_text)
-        logger.info(f"✅ Đã phản hồi cho {chat_id}")
+        logger.info(f"✅ Đã phản hồi cho {chat_id} : {response_text}")
         
     except Exception as e:
         logger.error(f"❌ Lỗi xử lý tại Telegram Adapter: {e}")
@@ -52,12 +52,12 @@ def run_bot():
     async def post_init(application):
         # Khởi động scheduler ngay khi bot chuẩn bị chạy
         start_scheduler()
-        logger.info("📅 [BOT] Scheduler đã được kích hoạt trong post_init.")
+        # logger.info("📅 [BOT] Scheduler đã được kích hoạt trong post_init.")
 
     async def post_stop(application):
         # Dừng scheduler khi bot dừng
         await stop_scheduler()
-        logger.info("🛑 [BOT] Scheduler đã dừng.")
+        # logger.info("🛑 [BOT] Scheduler đã dừng.")
 
     application = (
         ApplicationBuilder()
